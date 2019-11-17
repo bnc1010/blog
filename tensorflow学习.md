@@ -223,15 +223,19 @@ model.add(tf.keras.layers.Dense(128, activation='relu'))
 model.add(tf.keras.layers.Dense(128, activation='relu'))
 model.add(tf.keras.layers.Dense(128, activation='relu'))
 model.add(tf.keras.layers.Dense(10, activation='softmax'))
+# validation_data训练一次对test数据集测试获取正确率
 model.compile(optimizer='adam', loss='categorical_crossentropy', metrics=['acc'])
 history = model.fit(train_image, train_label_onehot, epochs=10, validation_data=(test_image, test_label_onehot))
-plt.plot(history.epoch, history.history.get('loss'), label='loss')
-plt.plot(history.epoch, history.history.get('val_loss'), label='val')
+plt.plot(history.epoch, history.history.get('loss'), label='train-loss')
+plt.plot(history.epoch, history.history.get('val_loss'), label='test-loss')
+plt.legend()
 plt.show()
 # loss在test数据集上没有单调下降
 
-plt.plot(history.epoch, history.history.get('acc'), label='loss')
-plt.plot(history.epoch, history.history.get('val_acc'), label='val')
+
+plt.plot(history.epoch, history.history.get('acc'), label='train-acc')
+plt.plot(history.epoch, history.history.get('val_acc'), label='test-acc')
+plt.legend()
 plt.show()
 # acc在训练集上得分较高，而测试集上没那么高
 # 欠拟合则在两个集上得分都不高
@@ -274,19 +278,19 @@ train_label_onehot = tf.keras.utils.to_categorical(train_label)
 test_label_onehot = tf.keras.utils.to_categorical(test_label)
 model = tf.keras.Sequential()
 model.add(tf.keras.layers.Flatten(input_shape=(28, 28)))
-model.add(tf.keras.layers.Dense(32, activation='relu'))
+model.add(tf.keras.layers.Dense(128, activation='relu'))
 model.add(tf.keras.layers.Dropout(0.5))
-model.add(tf.keras.layers.Dense(32, activation='relu'))
+model.add(tf.keras.layers.Dense(128, activation='relu'))
 model.add(tf.keras.layers.Dropout(0.5))
 model.add(tf.keras.layers.Dense(10, activation='softmax'))
 model.compile(optimizer='adam', loss='categorical_crossentropy', metrics=['acc'])
 history = model.fit(train_image, train_label_onehot, epochs=10, validation_data=(test_image, test_label_onehot))
-plt.plot(history.epoch, history.history.get('loss'), label='loss')
-plt.plot(history.epoch, history.history.get('val_loss'), label='val')
+plt.plot(history.epoch, history.history.get('loss'), label='train-loss')
+plt.plot(history.epoch, history.history.get('val_loss'), label='test-loss')
 plt.legend()
 plt.show()
-plt.plot(history.epoch, history.history.get('acc'), label='loss')
-plt.plot(history.epoch, history.history.get('val_acc'), label='val')
+plt.plot(history.epoch, history.history.get('acc'), label='train-acc')
+plt.plot(history.epoch, history.history.get('val_acc'), label='test-acc')
 plt.legend()
 plt.show()
 ```
@@ -319,17 +323,15 @@ model.add(tf.keras.layers.Dense(32, activation='relu'))
 model.add(tf.keras.layers.Dropout(0.5))
 model.add(tf.keras.layers.Dense(32, activation='relu'))
 model.add(tf.keras.layers.Dropout(0.5))
-model.add(tf.keras.layers.Dense(32, activation='relu'))
-model.add(tf.keras.layers.Dropout(0.5))
 model.add(tf.keras.layers.Dense(10, activation='softmax'))
 model.compile(optimizer='adam', loss='categorical_crossentropy', metrics=['acc'])
 history = model.fit(train_image, train_label_onehot, epochs=10, validation_data=(test_image, test_label_onehot))
-plt.plot(history.epoch, history.history.get('loss'), label='loss')
-plt.plot(history.epoch, history.history.get('val_loss'), label='val')
+plt.plot(history.epoch, history.history.get('loss'), label='train-loss')
+plt.plot(history.epoch, history.history.get('val_loss'), label='test-loss')
 plt.legend()
 plt.show()
-plt.plot(history.epoch, history.history.get('acc'), label='loss')
-plt.plot(history.epoch, history.history.get('val_acc'), label='val')
+plt.plot(history.epoch, history.history.get('acc'), label='train-acc')
+plt.plot(history.epoch, history.history.get('val_acc'), label='test-acc')
 plt.legend()
 plt.show()
 ```
@@ -566,5 +568,193 @@ tf.Tensor(1, shape=(), dtype=int32)
 tf.Tensor(4, shape=(), dtype=int32)
 tf.Tensor(9, shape=(), dtype=int32)
 tf.Tensor(16, shape=(), dtype=int32)
+```
+
+
+
+#### dataset用于输入：
+
+```python
+import tensorflow as tf
+import pandas as pd
+import matplotlib.pyplot as plt
+import numpy as np
+(train_image, train_label), (test_image, test_label) = tf.keras.datasets.fashion_mnist.load_data()
+# 图片归一化
+train_image = train_image / 255
+test_image = test_image / 255
+
+ds_train_image = tf.data.Dataset.from_tensor_slices(train_image)
+ds_train_label = tf.data.Dataset.from_tensor_slices(train_label)
+# 把图片和结果对应起来
+ds_train = tf.data.Dataset.zip((ds_train_image, ds_train_label))
+# 每次取64张图片，乱序10000张，无限重复
+ds_train = ds_train.shuffle(10000).repeat().batch(64)
+
+model = tf.keras.Sequential()
+model.add(tf.keras.layers.Flatten(input_shape=(28, 28)))
+model.add(tf.keras.layers.Dense(128, activation='relu'))
+model.add(tf.keras.layers.Dense(128, activation='relu'))
+model.add(tf.keras.layers.Dense(128, activation='relu'))
+model.add(tf.keras.layers.Dense(10, activation='softmax'))
+model.compile(optimizer='adam', loss='sparse_categorical_crossentropy', metrics=['acc'])
+# 每次迭代的步数 总大小/batch_size
+steps_per_epoch = train_image.shape[0] // 64
+# 训练5次
+model.fit(ds_train, epochs=5, steps_per_epoch=steps_per_epoch)
+```
+
+同时加入test数据集的dataset
+
+```python
+import tensorflow as tf
+import pandas as pd
+import matplotlib.pyplot as plt
+import numpy as np
+(train_image, train_label), (test_image, test_label) = tf.keras.datasets.fashion_mnist.load_data()
+# 图片归一化
+train_image = train_image / 255
+test_image = test_image / 255
+
+ds_train_image = tf.data.Dataset.from_tensor_slices(train_image)
+ds_train_label = tf.data.Dataset.from_tensor_slices(train_label)
+ds_test_image = tf.data.Dataset.from_tensor_slices(test_image)
+ds_test_label = tf.data.Dataset.from_tensor_slices(test_label)
+# 把图片和结果对应起来
+ds_train = tf.data.Dataset.zip((ds_train_image, ds_train_label))
+ds_test = tf.data.Dataset.zip((ds_test_image, ds_test_label))
+# 每次取64张图片，乱序10000张，无限重复
+ds_train = ds_train.shuffle(10000).repeat().batch(64)
+ds_test = ds_test.batch(64)
+
+model = tf.keras.Sequential()
+model.add(tf.keras.layers.Flatten(input_shape=(28, 28)))
+model.add(tf.keras.layers.Dense(128, activation='relu'))
+model.add(tf.keras.layers.Dense(128, activation='relu'))
+model.add(tf.keras.layers.Dense(128, activation='relu'))
+model.add(tf.keras.layers.Dense(10, activation='softmax'))
+model.compile(optimizer='adam', loss='sparse_categorical_crossentropy', metrics=['acc'])
+# 每次迭代的步数 总大小/batch_size
+steps_per_epoch = train_image.shape[0] // 64
+# 训练5次 validation_steps和steps_per_epoch计算方法相同
+model.fit(ds_train, epochs=5, steps_per_epoch=steps_per_epoch, validation_data=ds_test, validation_steps=10000 // 64)
+```
+
+
+
+### 卷积神经网络：
+
+```py
+卷积层
+
+layers.Conv2D():
+
+-filters:卷积核数量
+-kernel_size:卷积核大小(eg:(3*3))
+-strides:跨度，(x,y)横向跨x，纵向跨y
+-padding:填充，'valid'不填充，'same'填充
+-activation:激活方式
+-use_bias:true or false 是否添加权重
+-data_format:
+-...
+```
+
+
+
+```python
+非线性层
+
+relu
+sigmoid
+tanh
+```
+
+
+
+```python
+池化层：用于降采样
+
+layers.MaxPooling2D 最大池化，每块选取最大值（一般用这个）
+layers.AvgPooling2D 平均池化，每块取平均值
+
+-pool_size: 池化核的大小(eg:(2*2))
+-strides:跨度，一般不用
+-padding:填充
+-dataformat:
+```
+
+从图片到得出结果的大致过程：
+
+![1573987831365](C:\Users\acm\AppData\Roaming\Typora\typora-user-images\1573987831365.png)
+
+
+
+
+
+
+
+```python
+import tensorflow as tf
+import pandas as pd
+import matplotlib.pyplot as plt
+import numpy as np
+
+(train_image, train_label), (test_image, test_label) = tf.keras.datasets.fashion_mnist.load_data()
+
+train_image = np.expand_dims(train_image, -1) # 扩张维度 (None, hight, width, chanal)
+test_image = np.expand_dims(test_image, -1)
+
+model = tf.keras.Sequential()
+model.add(tf.keras.layers.Conv2D(32, (3, 3), input_shape=(28, 28, 1), padding='same', activation='relu'))# 添加卷积层
+model.add(tf.keras.layers.MaxPool2D())
+model.add(tf.keras.layers.Conv2D(64, (3, 3), activation='relu'))
+model.add(tf.keras.layers.GlobalAveragePooling2D())
+model.add(tf.keras.layers.Dense(10, activation='softmax'))
+
+model.compile(optimizer='adam',
+             loss='sparse_categorical_crossentropy',
+             metrics=['acc']
+             )
+history = model.fit(train_image, train_label, epochs=30, validation_data=(test_image, test_label))
+
+plt.plot(history.epoch, history.history.get('loss'), label='train-loss')
+plt.plot(history.epoch, history.history.get('val_loss'), label='test-loss')
+plt.legend()
+plt.show()
+plt.plot(history.epoch, history.history.get('acc'), label='train-acc')
+plt.plot(history.epoch, history.history.get('val_acc'), label='test-acc')
+plt.legend()
+plt.show()
+```
+
+![](C:\Users\acm\Desktop\下载.png)
+
+![](C:\Users\acm\Desktop\下载 (1).png)
+
+
+
+可以看出存在着过拟合问题
+
+```python
+model = tf.keras.Sequential()
+model.add(tf.keras.layers.Conv2D(64, (3, 3), input_shape=(28, 28, 1), padding='same', activation='relu'))
+model.add(tf.keras.layers.Conv2D(64, (3, 3), input_shape=(28, 28, 1), padding='same', activation='relu'))
+model.add(tf.keras.layers.MaxPool2D())
+model.add(tf.keras.layers.Dropout(0.5))
+model.add(tf.keras.layers.Conv2D(128, (3, 3), activation='relu', padding='same'))
+model.add(tf.keras.layers.Conv2D(128, (3, 3), activation='relu', padding='same'))
+model.add(tf.keras.layers.MaxPool2D())
+model.add(tf.keras.layers.Dropout(0.5))
+model.add(tf.keras.layers.Conv2D(256, (3, 3), activation='relu', padding='same'))
+model.add(tf.keras.layers.Conv2D(256, (3, 3), activation='relu', padding='same'))
+model.add(tf.keras.layers.GlobalAveragePooling2D())
+model.add(tf.keras.layers.Dense(256, activation='relu'))
+model.add(tf.keras.layers.Dense(10, activation='softmax'))
+
+model.compile(optimizer='adam',
+             loss='sparse_categorical_crossentropy',
+             metrics=['acc']
+             )
+history = model.fit(train_image, train_label, epochs=30, validation_data=(test_image, test_label))
 ```
 
