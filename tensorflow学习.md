@@ -243,11 +243,11 @@ plt.show()
 
 loss图：
 
-![1573976905862](C:\Users\acm\AppData\Roaming\Typora\typora-user-images\1573976905862.png)
+![](D:\bnc\github_blog\blog\1573976905862.png)
 
 正确率图：
 
-![1573976911853](C:\Users\acm\AppData\Roaming\Typora\typora-user-images\1573976911853.png)
+![](D:\bnc\github_blog\blog\1573976911853.png)
 
 
 
@@ -297,11 +297,11 @@ plt.show()
 
 loss图：
 
-![1573976704088](C:\Users\acm\AppData\Roaming\Typora\typora-user-images\1573976704088.png)
+![](D:\bnc\github_blog\blog\1573976704088.png)
 
 正确率图：
 
-![1573976717636](C:\Users\acm\AppData\Roaming\Typora\typora-user-images\1573976717636.png)
+![](D:\bnc\github_blog\blog\1573976717636.png)
 
 
 
@@ -338,11 +338,11 @@ plt.show()
 
 loss图：
 
-![1573977040877](C:\Users\acm\AppData\Roaming\Typora\typora-user-images\1573977040877.png)
+![](D:\bnc\github_blog\blog\1573977040877.png)
 
 正确率图：
 
-![1573977046609](C:\Users\acm\AppData\Roaming\Typora\typora-user-images\1573977046609.png)
+![](D:\bnc\github_blog\blog\1573977046609.png)
 
 正确率说明使用小规模的网络训练次数需要更多，训练集的正确率都不到0.6。在过拟合问题上比大规模网络要好一点
 
@@ -685,7 +685,7 @@ layers.AvgPooling2D 平均池化，每块取平均值
 
 从图片到得出结果的大致过程：
 
-![1573987831365](C:\Users\acm\AppData\Roaming\Typora\typora-user-images\1573987831365.png)
+![](D:\bnc\github_blog\blog\1573987831365.png)
 
 
 
@@ -727,13 +727,9 @@ plt.legend()
 plt.show()
 ```
 
-![](C:\Users\acm\Desktop\下载.png)
-
-![](C:\Users\acm\Desktop\下载 (1).png)
 
 
-
-可以看出存在着过拟合问题
+存在着过拟合问题
 
 ```python
 model = tf.keras.Sequential()
