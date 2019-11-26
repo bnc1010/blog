@@ -243,11 +243,11 @@ plt.show()
 
 loss图：
 
-![](D:\bnc\github_blog\blog\1573976905862.png)
+![](1573976905862.png)
 
 正确率图：
 
-![](D:\bnc\github_blog\blog\1573976911853.png)
+![](1573976911853.png)
 
 
 
@@ -297,11 +297,11 @@ plt.show()
 
 loss图：
 
-![](D:\bnc\github_blog\blog\1573976704088.png)
+![](1573976704088.png)
 
 正确率图：
 
-![](D:\bnc\github_blog\blog\1573976717636.png)
+![](1573976717636.png)
 
 
 
@@ -338,11 +338,11 @@ plt.show()
 
 loss图：
 
-![](D:\bnc\github_blog\blog\1573977040877.png)
+![](1573977040877.png)
 
 正确率图：
 
-![](D:\bnc\github_blog\blog\1573977046609.png)
+![](1573977046609.png)
 
 正确率说明使用小规模的网络训练次数需要更多，训练集的正确率都不到0.6。在过拟合问题上比大规模网络要好一点
 
@@ -685,7 +685,7 @@ layers.AvgPooling2D 平均池化，每块取平均值
 
 从图片到得出结果的大致过程：
 
-![](D:\bnc\github_blog\blog\1573987831365.png)
+![](1573987831365.png)
 
 
 
