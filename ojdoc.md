@@ -1,5 +1,7 @@
 ### 项目框架
 
+本项目使用前后端分离技术，前端和后端之间没有任何代码上的耦合，前后端交互使用http请求，因此前后端可以独立开发。
+
 ![](http://49.234.163.167:8008/api/media/ae93fa2e97cf0e083b8e25750c87db80)
 
 ### 后端：
@@ -17,6 +19,9 @@ IDE：推荐idea
 [项目地址](https://github.com/bnc1010/ZJNU_OJ_Back)
 
 
+后端中的mysql、redis使用docker部署，利用docker-compose自动化部署。
+注意win10家庭版不能完成部署，开发后端使用linux系统或者win10专业版。
+本人使用deepin系统。
 
 ### 前端：
 
@@ -151,3 +156,11 @@ git push origin --tags  一次性推送全部尚未推送到远程的本地标�
 
 git push origin :refs/tags/<tagname> 可以删除一个远程标签
 ```
+
+token认证技术：
+由于http请求无状态性，为此需要使用认证技术来识别前端对后端的请求。
+token是一个加密字符串，其中包含了用户的id，角色，权限，时间戳等信息。
+当用户第一次登录系统时，会根据这些信息，加密组成一个token返回给前端，对于之后前端对后端api的访问则需要携带该token信息，后端通过token判断合法性问题。
+后端使用redis存储用户的token，并设置一个有效时间。过了有效时间的token访问后端时，redis会自动删除该token，根据用户id无法找到token，即判断该用户登陆状态异常。
+
+redis是一个非关系型数据库，它存储在内存中，可以简单地理解为一个c++中的map，即key-value，可以根据key值存储，查询，删除，更新value。主要用途是减少访问mysql，提高数据访问速度。
